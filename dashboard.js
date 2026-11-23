@@ -228,6 +228,16 @@
       }
       select.value = state.settings.mapping[i];
       select.addEventListener("change", () => {
+        // Un sensor només es pot associar a un camp; no barregem canals.
+        if (select.value) {
+          state.settings.mapping.forEach((sensor, previousField) => {
+            if (previousField !== i && sensor === select.value) {
+              state.settings.mapping[previousField] = "";
+              const previousSelect = $("map-field-" + (previousField + 1));
+              if (previousSelect) previousSelect.value = "";
+            }
+          });
+        }
         state.settings.mapping[i] = select.value;
         safeStore(SETTINGS_KEY, state.settings);
         // Reinterpretar automàticament l'historial local, sense tocar ThingSpeak.
