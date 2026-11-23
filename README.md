@@ -10,6 +10,19 @@ Aplicació web estàtica per enviar lectures de micro:bit a ThingSpeak des de Ch
 5. Prem **Connecta micro:bit** i selecciona el dispositiu al selector de ports de Chrome.
 6. A ThingSpeak, comprova el gràfic de cada camp (Private View) després d'un mínim de 15 s.
 
+### Tauler de gràfics en directe
+
+- Quatre gràfics **condicionals**: temperatura (°C), humitat (%), pressió (hPa) i lluminositat (nivell del sensor).
+- **Compatibilitat per defecte amb el programa original**: camp 1 = temperatura, camp 2 = llum, camp 3 = lectura analògica sense gràfic; **mai** s'interpreta automàticament el camp 2 com humitat.
+- A **Configurar sensors, escales i valors vàlids** es pot assignar qualsevol dels 8 camps a un sensor (per al format nou recomanat: camp 1 temperatura, camp 2 humitat, camp 3 pressió, camp 4 llum).
+- Cada gràfic només es mostra si rep valors numèrics vàlids del sensor associat.
+- Períodes: últims 30 min, 2 h, 24 h, 7 dies, tot l'historial **local disponible**.
+- Escala Y automàtica o mínim/màxim manuals per sensor; filtratge opcional per valors admissibles (no afecta els enviaments).
+- Indicadors de mínim, mitjana, màxim i última lectura. Els gràfics no uneixen línies durant interrupcions llargues.
+- **Veure demostració**: visualitza les quatre gràfiques amb dades simulades **sense enviar res a ThingSpeak**.
+- Desament local limitat a 9.000 missatges o 30 dies (el primer límit que s'assoleixi), subjecte a capacitat del navegador. No es garanteix una sèrie local de tot l'any.
+- La PWA mostra **lectures rebudes** per USB, encara que ThingSpeak no accepti algun enviament. Per a dades anuals utilitza els gràfics del canal ThingSpeak.
+
 ### Format de dades
 La receptora envia una línia CSV com `23,157,623`, que es publica en `field1`, `field2` i `field3`. Per a les micro:bits de mostra: temperatura, llum i lectura analògica P0. Es poden enviar fins a 8 camps.
 

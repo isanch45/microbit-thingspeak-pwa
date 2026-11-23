@@ -115,6 +115,7 @@ async function openPort(selectedPort) {
   }
 
   keepReading = true;
+  window.SensorDashboard?.beginSession();
   setStatus("✅ Micro:bit connectada", "Esperant dades per USB…", "ok");
   log("Port obert a 115200 baud.");
 
@@ -200,6 +201,8 @@ function parseLine(line) {
 }
 
 async function handleLine(line) {
+  // Visualitza totes les lectures rebudes, incloses les que no s'envien pel límit de 15 s.
+  window.SensorDashboard?.ingest(line);
   lastDataEl.textContent = "Rebut: " + line;
   log("Rebut: " + line);
 

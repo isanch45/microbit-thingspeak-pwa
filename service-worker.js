@@ -1,5 +1,5 @@
-const CACHE = "microbit-thingspeak-v2";
-const ASSETS = ["./", "./index.html", "./app.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
+const CACHE = "microbit-thingspeak-v3";
+const ASSETS = ["./", "./index.html", "./app.js", "./dashboard.js", "./dashboard.css", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
