@@ -311,7 +311,7 @@
     const cutoff = Number.isFinite(duration) ? now - duration : 0;
     return getSource()
       .filter(point => point.t >= cutoff)
-      .map(point => ({ t: point.t, value: asSensorReading(point)[id] }))
+      .map(point => ({ t: point.t, value: state.demo ? point.values[SENSOR_IDS.indexOf(id)] : asSensorReading(point)[id] }))
       .filter(point => isValidReading(id, point.value))
       .sort((a, b) => a.t - b.t);
   }
