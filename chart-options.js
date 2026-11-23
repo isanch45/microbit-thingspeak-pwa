@@ -97,7 +97,7 @@ function render(svg,series,config,spec){
  }else{
   const intervals=points.slice(1).map((p,i)=>p.t-points[i].t).filter(n=>n>0).sort((a,b)=>a-b);
   const interval=intervals.length?intervals[Math.floor(intervals.length/2)]:15000;
-  const gap=Math.min(30*60000,Math.max(2*60000,interval*5));
+  const gap=Math.max(2*60000,interval*4);
   const segments=[];let seg=[];
   points.forEach(p=>{if(seg.length&&p.t-seg[seg.length-1].t>gap){segments.push(seg);seg=[];}seg.push(p);});
   if(seg.length)segments.push(seg);
