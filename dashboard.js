@@ -19,7 +19,7 @@
     period: "24h",
     // Compatibilitat amb microbit_emissor_exemple.py: temp, llum, lectura analògica.
     mapping: ["temperature", "light", "", "", "", "", "", ""],
-    chart: Object.fromEntries(SENSOR_IDS.map(id => [id, { yMin: "", yMax: "", validMin: "", validMax: "" }]))
+    chart: Object.fromEntries(SENSOR_IDS.map(id => [id, ThingSpeakChartOptions.defaults(SENSORS[id])]))
   };
 
   const $ = id => document.getElementById(id);
@@ -29,7 +29,8 @@
     demo: false,
     demoData: [],
     session: false,
-    activeSensors: new Set()
+    activeSensors: new Set(),
+    frozenSeries: Object.create(null)
   };
 
   function safeStore(key, value) {
@@ -44,11 +45,7 @@
       const chart = {};
       for (const id of SENSOR_IDS) {
         const stored = old.chart?.[id] || {};
-        chart[id] = Object.fromEntries(
-          ["yMin", "yMax", "validMin", "validMax"].map(k =>
-            [k, typeof stored[k] === "string" && /^-?\d*\.?\d*$/.test(stored[k]) ? stored[k] : ""]
-          )
-        );
+        chart[id] = ThingSpeakChartOptions.normalize(SENSORS[id], stored);
       }
       return {
         period: Object.hasOwn(PERIODS, old.period) ? old.period : "24h",
@@ -61,7 +58,7 @@
       return {
         period: "24h",
         mapping: [...DEFAULT_SETTINGS.mapping],
-        chart: Object.fromEntries(SENSOR_IDS.map(id => [id, { yMin: "", yMax: "", validMin: "", validMax: "" }]))
+        chart: Object.fromEntries(SENSOR_IDS.map(id => [id, ThingSpeakChartOptions.defaults(SENSORS[id])]))
       };
     }
   }
@@ -204,13 +201,32 @@
       card.innerHTML = '<div class="dash-head"><span class="dash-symbol" aria-hidden="true"></span><div class="dash-heading"><h3></h3><small>Lectures de la micro:bit</small></div><div class="dash-current" id="value-' + id + '"></div></div><svg class="dash-chart" id="chart-' + id + '" viewBox="0 0 640 250" role="img" aria-label="Evolució de ' + spec.name + '"></svg><div class="dash-metrics"><div class="dash-metric"><small>Mínim</small><strong id="min-' + id + '"></strong></div><div class="dash-metric"><small>Mitjana</small><strong id="avg-' + id + '"></strong></div><div class="dash-metric"><small>Màxim</small><strong id="max-' + id + '"></strong></div></div><div class="dash-time" id="time-' + id + '"></div>';
       card.querySelector(".dash-symbol").textContent = spec.symbol;
       card.querySelector("h3").textContent = spec.name;
+      const configButton = document.createElement("button");
+      configButton.type = "button";
+      configButton.className = "dash-chart-config";
+      configButton.textContent = "⚙";
+      configButton.setAttribute("aria-label", "Opcions del gràfic de " + spec.name);
+      configButton.title = "Configurar el gràfic";
+      configButton.addEventListener("click", () => {
+        ThingSpeakChartDialog.open({
+          spec,
+          config: state.settings.chart[id],
+          onSave: values => {
+            state.settings.chart[id] = values;
+            delete state.frozenSeries[id];
+            safeStore(SETTINGS_KEY, state.settings);
+            render();
+          }
+        });
+      });
+      card.querySelector(".dash-head").append(configButton);
       grid.append(card);
     }
     shell.append(grid);
 
     const settings = document.createElement("details");
     settings.className = "dash-settings";
-    settings.innerHTML = '<summary>⚙️ Configurar sensors, escales i valors vàlids</summary><p><strong>Correspondència dels camps:</strong> el programa original envia temperatura al camp 1 i llum al camp 2. Per a nous programes, associa els camps segons l’ordre real dels sensors. Els camps sense sensor no generen gràfic.</p>';
+    settings.innerHTML = '<summary>⚙️ Assignar els camps dels sensors</summary><p><strong>Correspondència dels camps:</strong> el programa original envia temperatura al camp 1 i llum al camp 2. Per a nous programes, associa els camps segons l’ordre real dels sensors. Els camps sense sensor no generen gràfic.</p>';
     const map = document.createElement("div");
     map.className = "dash-map";
     for (let i = 0; i < 8; i++) {
@@ -248,44 +264,8 @@
     }
     settings.append(map);
     const expl = document.createElement("p");
-    expl.textContent = "Escala Y: en blanc = automàtica. Rang vàlid: opcional, filtra lectures anòmales només dels gràfics (mai dels enviaments a ThingSpeak). Les mesures ocultes per una escala manual no s'esborren.";
+    expl.textContent = "Per configurar els tipus de gràfic, colors, agregacions i escales, prem el botó ⚙ de cada gràfic.";
     settings.append(expl);
-    const bounds = document.createElement("div");
-    bounds.className = "dash-boundsets";
-    for (const id of SENSOR_IDS) {
-      const box = document.createElement("div");
-      box.className = "dash-boundset";
-      const h = document.createElement("h4"); h.textContent = SENSORS[id].symbol + " " + SENSORS[id].name + " (" + SENSORS[id].unit + ")"; box.append(h);
-      const fields = document.createElement("div"); fields.className = "dash-bounds";
-      for (const [property, labelText] of [
-        ["yMin", "Escala mín."], ["yMax", "Escala màx."],
-        ["validMin", "Dada vàlida mín."], ["validMax", "Dada vàlida màx."]
-      ]) {
-        const label = document.createElement("label");
-        label.textContent = labelText;
-        const input = document.createElement("input");
-        input.type = "number"; input.step = "any";
-        input.placeholder = "Automàtic";
-        input.value = state.settings.chart[id][property];
-        input.addEventListener("change", () => {
-          const value = input.value.trim();
-          const proposed = { ...state.settings.chart[id], [property]: value };
-          const lower = numberOrNull(proposed[property.includes("y") && property === "yMax" ? "yMin" : property === "validMax" ? "validMin" : property]);
-          const upper = numberOrNull(proposed[property === "yMin" ? "yMax" : property === "validMin" ? "validMax" : property]);
-          if (lower !== null && upper !== null && lower >= upper) {
-            alert("El mínim ha de ser més petit que el màxim.");
-            input.value = state.settings.chart[id][property];
-            return;
-          }
-          state.settings.chart[id][property] = value;
-          safeStore(SETTINGS_KEY, state.settings);
-          render();
-        });
-        label.append(input); fields.append(label);
-      }
-      box.append(fields); bounds.append(box);
-    }
-    settings.append(bounds);
     const resetButton = document.createElement("button");
     resetButton.className = "dash-danger";
     resetButton.type = "button";
@@ -316,110 +296,30 @@
   }
 
   function getSeries(id) {
+    const opts = state.settings.chart[id];
+    if (!opts.dynamic && state.frozenSeries[id]) return state.frozenSeries[id];
     const now = Date.now();
-    const duration = PERIODS[state.settings.period] ?? PERIODS["24h"];
-    const cutoff = Number.isFinite(duration) ? now - duration : 0;
-    return getSource()
+    const days = numberOrNull(opts.days);
+    const results = numberOrNull(opts.results);
+    const period = PERIODS[state.settings.period] ?? PERIODS["24h"];
+    const cutoff = results !== null ? 0 :
+      days !== null && days > 0 ? now - days * 86400000 :
+      Number.isFinite(period) ? now - period : 0;
+    let values = getSource()
       .filter(point => point.t >= cutoff)
       .map(point => ({ t: point.t, value: state.demo ? point.values[SENSOR_IDS.indexOf(id)] : asSensorReading(point)[id] }))
       .filter(point => isValidReading(id, point.value))
       .sort((a, b) => a.t - b.t);
-  }
-
-  function sampleForChart(series, target = 550) {
-    if (series.length <= target) return series;
-    const output = [];
-    const bucketSize = Math.ceil(series.length / (target / 2));
-    for (let i = 0; i < series.length; i += bucketSize) {
-      const part = series.slice(i, i + bucketSize);
-      const candidates = [part[0], part[part.length - 1],
-        part.reduce((a, b) => b.value < a.value ? b : a),
-        part.reduce((a, b) => b.value > a.value ? b : a)];
-      for (const p of candidates.sort((a, b) => a.t - b.t)) {
-        if (!output.length || output[output.length - 1] !== p) output.push(p);
-      }
+    if (results !== null && results > 0) {
+      values = values.slice(-Math.max(1,Math.min(9000,Math.floor(results))));
     }
-    return output;
+    values = ThingSpeakChartOptions.transform(values, opts);
+    if (!opts.dynamic && values.length) state.frozenSeries[id] = values;
+    return values;
   }
 
   function renderGraph(svg, id, series) {
-    svg.replaceChildren();
-    if (!series.length) return;
-    const spec = SENSORS[id];
-    const [W, H] = [640, 250];
-    const plot = { left: 57, top: 16, right: 626, bottom: 205 };
-    const values = series.map(p => p.value);
-    const dataMin = Math.min(...values);
-    const dataMax = Math.max(...values);
-    const c = state.settings.chart[id];
-    const yMinConfigured = numberOrNull(c.yMin);
-    const yMaxConfigured = numberOrNull(c.yMax);
-    const naturalSpan = Math.max(0.0001, dataMax - dataMin);
-    const pad = naturalSpan * 0.12 || 1;
-    let low = yMinConfigured ?? dataMin - Math.max(pad, naturalSpan < .01 ? (id === "pressure" ? .5 : 1) : 0);
-    let high = yMaxConfigured ?? dataMax + Math.max(pad, naturalSpan < .01 ? (id === "pressure" ? .5 : 1) : 0);
-    if (low >= high) { low -= 1; high += 1; }
-    const tMin = series[0].t;
-    const tMax = series[series.length - 1].t;
-    const x = t => plot.left + ((t - tMin) / Math.max(1, tMax - tMin)) * (plot.right - plot.left);
-    const y = v => plot.bottom - ((v - low) / (high - low)) * (plot.bottom - plot.top);
-
-    const defs = svgEl("defs");
-    const grad = svgEl("linearGradient", { id: "gradient-" + id, x1: "0", y1: "0", x2: "0", y2: "1" });
-    grad.append(svgEl("stop", { offset: "0%", "stop-color": spec.color, "stop-opacity": ".17" }));
-    grad.append(svgEl("stop", { offset: "100%", "stop-color": spec.color, "stop-opacity": "0" }));
-    defs.append(grad);
-    const clip = svgEl("clipPath", { id: "clip-" + id });
-    clip.append(svgEl("rect", { x: plot.left, y: plot.top, width: plot.right - plot.left, height: plot.bottom - plot.top }));
-    defs.append(clip); svg.append(defs);
-
-    for (let i = 0; i <= 4; i++) {
-      const yy = plot.top + (plot.bottom - plot.top) * i / 4;
-      const val = high - (high - low) * i / 4;
-      svg.append(svgEl("line", { x1: plot.left, y1: yy, x2: plot.right, y2: yy, stroke: "#e2eaf1", "stroke-width": 1 }));
-      svg.append(svgEl("text", { x: plot.left - 10, y: yy + 4, "text-anchor": "end", class: "dash-svg-text" }, format(val, spec.decimals)));
-    }
-    const span = tMax - tMin;
-    for (let i = 0; i <= 3; i++) {
-      const time = tMin + (span * i / 3);
-      const label = span >= 86400000
-        ? new Date(time).toLocaleDateString("ca-ES", { day: "numeric", month: "short" })
-        : new Date(time).toLocaleTimeString("ca-ES", { hour: "2-digit", minute: "2-digit" });
-      svg.append(svgEl("text", { x: plot.left + i * (plot.right - plot.left) / 3, y: plot.bottom + 25, "text-anchor": i === 0 ? "start" : i === 3 ? "end" : "middle", class: "dash-svg-text" }, label));
-    }
-    const data = sampleForChart(series);
-    const diffs = data.slice(1).map((point, i) => point.t - data[i].t).filter(d => d > 0).sort((a, b) => a - b);
-    const median = diffs.length ? diffs[Math.floor(diffs.length / 2)] : 15000;
-    // Never draw a misleading line across a long interruption.
-    const gapMs = Math.min(30 * 60000, Math.max(2 * 60000, median * 5));
-    const groups = [];
-    let group = [];
-    for (const point of data) {
-      if (group.length && point.t - group[group.length - 1].t > gapMs) {
-        groups.push(group); group = [];
-      }
-      group.push(point);
-    }
-    if (group.length) groups.push(group);
-
-    const strokes = svgEl("g", { "clip-path": "url(#clip-" + id + ")" });
-    for (const segment of groups) {
-      const points = segment.map(p => [x(p.t), y(p.value)]);
-      if (points.length >= 2) {
-        const line = "M" + points.map(p => p.map(v => v.toFixed(2)).join(",")).join(" L");
-        const area = line + " L" + x(segment[segment.length - 1].t).toFixed(2) + "," + plot.bottom +
-          " L" + x(segment[0].t).toFixed(2) + "," + plot.bottom + " Z";
-        strokes.append(svgEl("path", { d: area, fill: "url(#gradient-" + id + ")" }));
-        strokes.append(svgEl("path", { d: line, fill: "none", stroke: spec.color, "stroke-width": 2.7, "stroke-linejoin": "round", "stroke-linecap": "round" }));
-      } else if (points.length === 1) {
-        strokes.append(svgEl("circle", { cx: points[0][0], cy: points[0][1], r: 3.6, fill: spec.color }));
-      }
-    }
-    if (data.length) {
-      const last = data[data.length - 1];
-      strokes.append(svgEl("circle", { cx: x(last.t), cy: y(last.value), r: 4.8, stroke: "#fff", "stroke-width": 2, fill: spec.color }));
-    }
-    svg.append(strokes);
+    ThingSpeakChartOptions.render(svg, series, state.settings.chart[id], SENSORS[id]);
   }
 
   function render() {
@@ -440,6 +340,9 @@
       if (card.hidden) continue;
       visible++;
       const spec = SENSORS[id];
+      const cfg = state.settings.chart[id];
+      card.style.setProperty("--sensor-color", cfg.color);
+      card.querySelector("h3").textContent = cfg.title || spec.name;
       const vals = series.map(point => point.value);
       const latest = series[series.length - 1];
       const min = Math.min(...vals), max = Math.max(...vals);
@@ -486,6 +389,7 @@
   function beginSession() {
     state.session = true;
     state.activeSensors.clear();
+    state.frozenSeries = Object.create(null);
     if (state.demo) {
       state.demo = false;
       state.demoData = [];
