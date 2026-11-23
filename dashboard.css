@@ -82,3 +82,25 @@ main{max-width:1580px!important;margin:0 auto;padding:22px 24px 40px}
 @media(max-width:950px){.app-layout{grid-template-columns:224px minmax(0,1fr);gap:12px}.charts-panel{padding:16px!important}.charts-panel .dash-grid{grid-template-columns:1fr}}
 @media(max-width:650px){main{padding:15px 12px 30px}.app-layout{grid-template-columns:1fr}.app-sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.app-sidebar .card{padding:12px}.sidebar-connection{grid-row:span 2}.sidebar-log{grid-column:1/-1}.charts-panel{padding:14px!important}.app-header h1{font-size:1.25rem}.charts-panel .dash-intro{gap:10px}}
 @media(max-width:450px){.app-sidebar{grid-template-columns:1fr}.sidebar-connection{grid-row:auto}.sidebar-log{grid-column:auto}.app-header{margin-bottom:13px}.dash-actions{width:100%}}
+
+/* Finestra d'opcions de cada gràfic. */
+.dash-chart-config{flex:none!important;border:1px solid #d5e1ee!important;background:#f7faff!important;color:#395d83!important;margin:0!important;padding:6px 10px!important;font-size:1.15rem!important;line-height:1.2!important;border-radius:9px!important}
+.dash-chart-config:hover{background:#e7f2ff!important}
+.chart-options-dialog{width:min(740px,calc(100vw - 28px));max-height:min(90vh,940px);box-sizing:border-box;border:1px solid #d3dce7;border-radius:18px;box-shadow:0 28px 95px rgba(12,29,48,.24);padding:0;color:#1b2d40;background:#fff;overflow:auto}
+.chart-options-dialog::backdrop{background:rgba(14,31,51,.54);backdrop-filter:blur(3px)}
+.chart-options-dialog form{margin:0;padding:22px}
+.chart-modal-head{display:flex;align-items:center;gap:15px;justify-content:space-between;margin-bottom:18px;padding-bottom:15px;border-bottom:1px solid #e2e8f0}
+.chart-modal-head h2{font-size:1.3rem;line-height:1.35;margin:0;color:#172d42}
+.chart-modal-close{border:0!important;background:#f0f4f8!important;font-size:1.65rem!important;width:38px;height:38px;padding:0!important;margin:0!important}
+.chart-modal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 18px}
+.chart-modal-field{display:grid;grid-template-columns:118px minmax(0,1fr);gap:8px;align-items:center;min-width:0;margin:0!important}
+.chart-modal-field>span{font-size:.82rem;color:#435670;font-weight:650}
+.chart-modal-field select,.chart-modal-field input{width:100%;min-width:0;box-sizing:border-box;padding:9px 10px!important;border:1px solid #cbd6e2;border-radius:8px;font:inherit;font-size:.87rem!important;background:#fff;color:#1d3147}
+.chart-modal-field input[type=color]{min-height:40px;padding:4px!important;cursor:pointer}
+.chart-modal-info{margin:18px 0 8px;color:#61748b;font-size:.82rem;line-height:1.5}
+.chart-modal-error{min-height:18px;color:#a1261a;font-size:.84rem}
+.chart-modal-actions{display:flex;align-items:center;gap:9px;justify-content:flex-end;margin-top:8px}
+.chart-modal-actions button{margin:0;font-size:.88rem}
+.chart-modal-actions button:first-child{margin-right:auto;color:#46607c}
+.chart-modal-actions .chart-save{background:#153c65;color:white;border-color:#153c65}
+@media(max-width:650px){.chart-options-dialog form{padding:15px}.chart-modal-grid{grid-template-columns:1fr;gap:10px}.chart-modal-field{grid-template-columns:110px minmax(0,1fr)}.dash-chart-config{padding:5px 8px!important}}
