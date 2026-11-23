@@ -143,18 +143,27 @@ async function openPort(selectedPort) {
   }
 
   keepReading = true;
+  window.MicrobitWakeLock?.setConnected(true);
   window.SensorDashboard?.beginSession();
   setStatus("✅ Micro:bit connectada", "Esperant dades per USB…", "ok");
   log("Port obert a 115200 baud.");
 
+  const activePort = selectedPort;
   readLoop().catch((err) => {
     setStatus("Connexió interrompuda", String(err), "warn");
     log("Lectura: " + err);
+  }).finally(() => {
+    // No alliberis un bloqueig d'una connexió USB posterior.
+    if (port === activePort) {
+      keepReading = false;
+      window.MicrobitWakeLock?.setConnected(false);
+    }
   });
 }
 
 async function disconnect(showStatus = true) {
   keepReading = false;
+  window.MicrobitWakeLock?.setConnected(false);
 
   try {
     if (reader) {
@@ -285,6 +294,7 @@ navigator.serial?.addEventListener("disconnect", (event) => {
   if (port && event.target === port) {
     setStatus("Micro:bit desconnectada", "Torna-la a connectar.", "warn");
     log("El dispositiu USB s'ha desconnectat.");
+    window.MicrobitWakeLock?.setConnected(false);
     port = null;
   }
 });
