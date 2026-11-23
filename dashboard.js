@@ -286,10 +286,6 @@
     settings.append(hint);
     shell.append(settings);
 
-    const footnote = document.createElement("p");
-    footnote.className = "dash-note";
-    footnote.textContent = "Sense biblioteques externes. Les gràfiques es dibuixen localment. Per veure tot l'any, utilitza l'històric de ThingSpeak.";
-    shell.append(footnote);
   }
 
   function getSource() {
