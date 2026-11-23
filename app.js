@@ -25,6 +25,32 @@ function setStatus(title, detail = "", kind = "") {
   statusEl.className = "status " + kind;
 }
 
+function describeSerialConnectionError(err) {
+  // Chrome hides the operating system's exact cause, so a port can be
+  // unavailable for several reasons. Don't incorrectly blame the API key.
+  const name = err?.name || "";
+  const message = String(err?.message || err || "");
+  if (name === "NetworkError" || /failed to open serial port/i.test(message)) {
+    return {
+      title: "No es pot obrir el port de la micro:bit",
+      detail: "És possible que una altra aplicació faci servir el port USB. Tanca el connector de Windows, MakeCode, Thonny i les altres pestanyes de connexió sèrie; desconnecta i reconnecta la micro:bit, i torna a prémer «Connecta micro:bit». Si continua fallant, prova un altre cable o port USB."
+    };
+  }
+  if (name === "InvalidStateError") {
+    return {
+      title: "El port ja està obert",
+      detail: "La micro:bit pot estar connectada en una altra pestanya. Tanca les altres connexions, desconnecta-la i torna-la a connectar."
+    };
+  }
+  if (name === "SecurityError" || name === "NotAllowedError") {
+    return {
+      title: "Accés al port sèrie bloquejat",
+      detail: "Comprova els permisos de Chrome. Si és un Chromebook gestionat pel centre, la política del dispositiu pot impedir la connexió Web Serial."
+    };
+  }
+  return { title: "Error connectant", detail: message };
+}
+
 function loadApiKey() {
   const key = localStorage.getItem("thingspeakWriteKey") || "";
   apiKeyEl.value = key;
@@ -76,7 +102,8 @@ async function autoConnectGrantedPort() {
     log("S'ha trobat un port prèviament autoritzat. Intentant reconnectar…");
     await openPort(preferred);
   } catch (err) {
-    setStatus("No s'ha pogut reconnectar", String(err), "warn");
+    const info = describeSerialConnectionError(err);
+    setStatus(info.title, info.detail, "warn");
     log("Autoconnexió: " + err);
   }
 }
@@ -97,7 +124,8 @@ async function requestAndConnect() {
       log("Selecció de port cancel·lada.");
       return;
     }
-    setStatus("Error connectant", String(err), "err");
+    const info = describeSerialConnectionError(err);
+    setStatus(info.title, info.detail, "err");
     log("Connexió: " + err);
   }
 }
