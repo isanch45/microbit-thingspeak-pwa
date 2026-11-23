@@ -159,6 +159,7 @@
     demoButton.textContent = "Veure demostració";
     demoButton.addEventListener("click", () => {
       state.demo = !state.demo;
+      state.frozenSeries = Object.create(null);
       if (state.demo) {
         const now = Date.now();
         state.demoData = Array.from({ length: 61 }, (_, i) => {
@@ -368,6 +369,7 @@
     if (state.demo) {
       state.demo = false;
       state.demoData = [];
+      state.frozenSeries = Object.create(null);
       const btn = $("dashDemo"); if (btn) btn.textContent = "Veure demostració";
     }
     const values = readLine(line);
