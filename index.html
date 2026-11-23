@@ -49,6 +49,13 @@
         <div class="sidebar-label">Connexió</div>
         <button id="connect" class="primary side-connect">Connecta micro:bit</button>
         <button id="disconnect" class="side-disconnect">Desconnecta</button>
+        <div class="wake-control">
+          <label class="wake-toggle" for="keepAwake">
+            <input type="checkbox" id="keepAwake" checked>
+            <span>Evita la suspensió</span>
+          </label>
+          <div id="wakeLockStatus" class="wake-status" aria-live="polite">Comprovant…</div>
+        </div>
         <div class="sidebar-key">
           <label for="apiKey">Write API Key</label>
           <input id="apiKey" type="password" autocomplete="off" placeholder="Clau de ThingSpeak">
@@ -73,6 +80,7 @@
   <script src="chart-options.js"></script>
   <script src="chart-options-dialog.js"></script>
   <script src="dashboard.js"></script>
+  <script src="wake-lock.js"></script>
   <script src="app.js"></script>
 </main>
 </body>

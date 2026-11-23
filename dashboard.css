@@ -114,3 +114,12 @@ main{max-width:1580px!important;margin:0 auto;padding:22px 24px 40px}
   .dash-sensor .dash-current{grid-column:1/4;grid-row:2;justify-self:end;font-size:1.42rem;margin-top:2px}
   .dash-sensor .dash-chart-config{grid-column:3;grid-row:1;justify-self:end;align-self:start}
 }
+
+/* Screen Wake Lock: opció compacta al panell lateral. */
+.wake-control{border-top:1px solid #e5eaf0;margin-top:5px;padding-top:13px}
+.wake-toggle{display:flex!important;align-items:center;gap:9px;cursor:pointer;font-size:.86rem!important;color:#233b53;font-weight:650!important;margin:0!important}
+.wake-toggle input{flex:none;width:17px!important;height:17px;margin:0;accent-color:#1b5c9b;cursor:pointer}
+.wake-toggle input:disabled{cursor:not-allowed}
+.wake-status{margin:7px 0 0 26px;font-size:.77rem;line-height:1.45;color:#63748b;overflow-wrap:anywhere}
+.wake-status[data-state="active"]{color:#087647}
+.wake-status[data-state="error"],.wake-status[data-state="unsupported"]{color:#a44920}

@@ -10,6 +10,22 @@ Aplicació web estàtica per enviar lectures de micro:bit a ThingSpeak des de Ch
 5. Prem **Connecta micro:bit** i selecciona el dispositiu al selector de ports de Chrome.
 6. A ThingSpeak, comprova el gràfic de cada camp (Private View) després d'un mínim de 15 s.
 
+### Evitar la suspensió en Chromebook
+
+En connectar la micro:bit per USB, l'opció **Evita la suspensió** està
+activada per defecte. Si Chrome disposa de l'API **Screen Wake Lock** i la
+concedeix, la pantalla es manté encesa i es redueix el risc de suspensió
+automàtica durant la recollida. L'estat indica si realment està **Actiu**,
+**Pausat** o **No disponible**.
+
+- El bloqueig es retira quan es desconnecta la micro:bit o es desmarca l'opció.
+- Chrome pot alliberar-lo quan la pàgina deixa de ser visible o per restriccions
+  d'energia, de bateria o de l'administrador. En tornar a la pàgina es torna
+  a sol·licitar.
+- **No manté els enviaments amb la pàgina tancada**, ni garanteix el
+  funcionament amb la tapa del Chromebook tancada. No substitueix un emissor
+  autònom que disposi de Wi-Fi.
+
 ### Tauler de gràfics en directe
 
 - Quatre gràfics **condicionals**: temperatura (°C), humitat (%), pressió (hPa) i lluminositat (nivell del sensor).
