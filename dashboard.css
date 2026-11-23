@@ -104,3 +104,13 @@ main{max-width:1580px!important;margin:0 auto;padding:22px 24px 40px}
 .chart-modal-actions button:first-child{margin-right:auto;color:#46607c}
 .chart-modal-actions .chart-save{background:#153c65;color:white;border-color:#153c65}
 @media(max-width:650px){.chart-options-dialog form{padding:15px}.chart-modal-grid{grid-template-columns:1fr;gap:10px}.chart-modal-field{grid-template-columns:110px minmax(0,1fr)}.dash-chart-config{padding:5px 8px!important}}
+
+/* A les pantalles petites, el valor se situa sota el títol i no se solapa. */
+@media(max-width:560px){
+  .dash-sensor .dash-head{display:grid;grid-template-columns:42px minmax(0,1fr) 38px;gap:8px;align-items:center}
+  .dash-sensor .dash-symbol{grid-column:1;grid-row:1}
+  .dash-sensor .dash-heading{grid-column:2;grid-row:1;min-width:0}
+  .dash-sensor .dash-heading h3{overflow-wrap:anywhere}
+  .dash-sensor .dash-current{grid-column:1/4;grid-row:2;justify-self:end;font-size:1.42rem;margin-top:2px}
+  .dash-sensor .dash-chart-config{grid-column:3;grid-row:1;justify-self:end;align-self:start}
+}
