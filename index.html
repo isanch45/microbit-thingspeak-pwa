@@ -29,44 +29,49 @@
 </head>
 <body>
 <main>
-  <section class="card">
-    <h1>Micro:bit → ThingSpeak</h1>
-    <div class="muted">Gateway per Chrome i ChromeOS amb Web Serial</div>
-  </section>
-
-  <section class="card">
-    <div id="status" class="status">Preparant…</div>
-    <div id="detail" class="muted">Comprovant compatibilitat.</div>
-  </section>
-
-  <section class="card grid">
+  <header class="app-header">
+    <span class="app-brand-mark" aria-hidden="true">◉</span>
     <div>
-      <label for="apiKey">ThingSpeak Write API Key</label>
-      <input id="apiKey" type="password" autocomplete="off" placeholder="Enganxa la Write API Key">
+      <h1>Micro:bit → ThingSpeak</h1>
+      <p>Observatori de sensors</p>
     </div>
-    <div>
-      <button id="saveKey">Desa clau</button>
-      <button id="connect" class="primary">Connecta micro:bit</button>
-      <button id="disconnect">Desconnecta</button>
-    </div>
-    <div class="muted">
-      La clau es desa només en aquest navegador. Els gràfics són locals i es poden configurar. La micro:bit receptora ha d'enviar línies com
-      <code>23,157,623</code>.
-    </div>
-  </section>
+  </header>
 
-  <section class="card">
-    <strong>Últimes dades</strong>
-    <div id="lastData" class="muted" style="margin-top:6px">Encara no hi ha dades.</div>
-  </section>
+  <div class="app-layout">
+    <aside class="app-sidebar" aria-label="Connexió i enviament de dades">
+      <section class="card sidebar-status" aria-live="polite">
+        <div class="sidebar-label">Estat</div>
+        <div id="status" class="status">Preparant…</div>
+        <div id="detail" class="muted">Comprovant compatibilitat.</div>
+      </section>
 
-  <section id="sensorDashboard" class="card" aria-label="Observatori de sensors"></section>
+      <section class="card sidebar-connection">
+        <div class="sidebar-label">Connexió</div>
+        <button id="connect" class="primary side-connect">Connecta micro:bit</button>
+        <button id="disconnect" class="side-disconnect">Desconnecta</button>
+        <div class="sidebar-key">
+          <label for="apiKey">Write API Key</label>
+          <input id="apiKey" type="password" autocomplete="off" placeholder="Clau de ThingSpeak">
+          <button id="saveKey">Desa la clau</button>
+        </div>
+      </section>
 
-  <section class="card">
-    <strong>Registre</strong>
-    <div id="log" style="margin-top:8px"></div>
-  </section>
+      <section class="card sidebar-recent">
+        <div class="sidebar-label">Última lectura</div>
+        <div id="lastData" class="muted">Encara no hi ha dades.</div>
+      </section>
 
+      <details class="card sidebar-log">
+        <summary>Registre de comunicació</summary>
+        <div id="log" aria-live="off"></div>
+      </details>
+    </aside>
+
+    <section id="sensorDashboard" class="card charts-panel" aria-label="Gràfics de sensors"></section>
+  </div>
+
+  <script src="chart-options.js"></script>
+  <script src="chart-options-dialog.js"></script>
   <script src="dashboard.js"></script>
   <script src="app.js"></script>
 </main>
