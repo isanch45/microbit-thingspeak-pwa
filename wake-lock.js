@@ -81,10 +81,11 @@
     const current = generation;
     errorMessage = "";
     // Una sola petició simultània: evita bloquejos duplicats.
-    const request = navigator.wakeLock.request("screen");
-    pending = request;
-    render();
+    let request;
     try {
+      request = Promise.resolve(navigator.wakeLock.request("screen"));
+      pending = request;
+      render();
       const lock = await request;
       if (current !== generation || !shouldHold()) {
         try { await lock.release(); } catch (_) {}
@@ -105,6 +106,10 @@
     } finally {
       if (pending === request) pending = null;
       render();
+      // L'estat pot haver canviat mentre Chrome resolia una petició anterior.
+      if (current !== generation && shouldHold() && !sentinel) {
+        void acquire();
+      }
     }
   }
 
