@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#ffffff">
   <title>Micro:bit → ThingSpeak</title>
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="dashboard.css">
   <style>
     :root { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     body { margin:0; background:#f6f7f8; color:#1f2328; }
@@ -49,7 +50,7 @@
       <button id="disconnect">Desconnecta</button>
     </div>
     <div class="muted">
-      La clau es desa només en aquest navegador. La micro:bit receptora ha d'enviar línies com
+      La clau es desa només en aquest navegador. Els gràfics són locals i es poden configurar. La micro:bit receptora ha d'enviar línies com
       <code>23,157,623</code>.
     </div>
   </section>
@@ -59,11 +60,14 @@
     <div id="lastData" class="muted" style="margin-top:6px">Encara no hi ha dades.</div>
   </section>
 
+  <section id="sensorDashboard" class="card" aria-label="Observatori de sensors"></section>
+
   <section class="card">
     <strong>Registre</strong>
     <div id="log" style="margin-top:8px"></div>
   </section>
 
+  <script src="dashboard.js"></script>
   <script src="app.js"></script>
 </main>
 </body>
