@@ -425,10 +425,10 @@
   function render() {
     const banner = $("dashBanner"), grid = $("dashGrid"), empty = $("dashEmpty");
     if (!banner || !grid || !empty) return;
+    // Només cal advertir quan es mostren dades simulades.
+    banner.hidden = !state.demo;
     banner.className = state.demo ? "dash-notice demo" : "dash-notice";
-    banner.textContent = state.demo
-      ? "DADES DE DEMOSTRACIÓ · fictícies, no s'envien a ThingSpeak ni queden guardades."
-      : "DADES REALS DEL NAVEGADOR · no es comparteixen amb altres escoles. Els gràfics només mostren sensors disponibles.";
+    banner.textContent = state.demo ? "MODE DEMOSTRACIÓ · dades simulades." : "";
     const history = getSource();
     let visible = 0;
     for (const id of SENSOR_IDS) {
