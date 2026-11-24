@@ -123,3 +123,13 @@ main{max-width:1580px!important;margin:0 auto;padding:22px 24px 40px}
 .wake-status{margin:7px 0 0 26px;font-size:.77rem;line-height:1.45;color:#63748b;overflow-wrap:anywhere}
 .wake-status[data-state="active"]{color:#087647}
 .wake-status[data-state="error"],.wake-status[data-state="unsupported"]{color:#a44920}
+
+/* Darrera petició: camps reals, sense mostrar la clau API. */
+.sent-fields{font-size:.82rem;color:#344b64;line-height:1.5;overflow-wrap:anywhere}
+.sent-fields>div{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid #eef2f6}
+.sent-fields strong{color:#142638;text-align:right;min-width:0;overflow-wrap:anywhere}
+.sent-time{color:#65758b;font-size:.75rem;margin-top:9px}
+.sent-status{color:#65758b;font-size:.75rem;line-height:1.4;margin-top:5px}
+.sent-status[data-state="error"]{color:#b42318}
+.sent-status[data-state="sent"]{color:#24638b}
+.sent-time:empty,.sent-status:empty{display:none}
