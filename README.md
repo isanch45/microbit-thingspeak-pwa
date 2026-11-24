@@ -1,14 +1,18 @@
 # Micro:bit → ThingSpeak · PWA
 
-Aplicació web estàtica per enviar lectures de micro:bit a ThingSpeak des de Chrome (ChromeOS, Windows, macOS i Linux) mitjançant **Web Serial i USB**.
+Aplicació web estàtica per visualitzar lectures de micro:bit localment des de Chrome (ChromeOS, Windows, macOS i Linux) mitjançant **Web Serial i USB**, amb enviament opcional a ThingSpeak.
 
-## Ús
+## Ús en mode local (sense compte ni clau de ThingSpeak)
 1. Obre la [PWA publicada](https://isanch45.github.io/microbit-thingspeak-pwa/) amb Chrome.
-2. Introdueix la **Write API Key** del teu canal de ThingSpeak i prem **Desa clau**.
-3. Programa les micro:bits amb els fitxers `microbit_emissor_exemple.py` i `microbit_receptor.py` (ràdio al grup 23).
-4. Connecta la micro:bit receptora al port USB (l'altra funciona amb piles, a distància).
-5. Prem **Connecta micro:bit** i selecciona el dispositiu al selector de ports de Chrome.
-6. A ThingSpeak, comprova el gràfic de cada camp (Private View) després d'un mínim de 15 s.
+2. Programa les micro:bits perquè l'emissora enviï les lectures CSV per ràdio (grup 23) i la receptora escrigui cada missatge al port sèrie USB a 115200 bauds.
+3. Connecta la receptora al port USB i prem **Connecta micro:bit**; selecciona el dispositiu al selector de ports de Chrome.
+4. Assigna els camps als sensors i consulta els gràfics locals.
+
+## Enviament opcional al núvol
+- A **ThingSpeak · opcional**, introdueix la Write API Key i prem **Desa la clau**. Les lectures següents es poden enviar a ThingSpeak sense reconnectar la micro:bit.
+- Les claus que ja estaven desades continuen funcionant.
+- **Desactiva l'enviament** elimina la clau desada i atura les noves peticions, sense interrompre els gràfics locals.
+- Comprova el canal a ThingSpeak (Private View). L'interval mínim entre enviaments és de 15 s.
 
 ### Evitar la suspensió en Chromebook
 
@@ -51,6 +55,6 @@ La receptora envia una línia CSV com `23,157,623`, que es publica en `field1`, 
 
 **Seguretat:** no incloguis mai claus Write API Key als fitxers d'aquest repositori. La clau desada al navegador és per ús local; no introdueixis claus compartides en equips sense confiança.
 
-**Limitacions:** la web necessita HTTPS, permís del port sèrie i accés a Internet. Les polítiques dels Chromebooks gestionats poden bloquejar Web Serial. L'estat d'enviament indica que s'ha fet la petició, no garanteix que ThingSpeak l'hagi acceptada: valida-ho al canal.
+**Limitacions:** la web necessita HTTPS i permís del port sèrie. L'accés a Internet és necessari per carregar inicialment la PWA i enviar dades a ThingSpeak; els gràfics locals no depenen de ThingSpeak. Les polítiques dels Chromebooks gestionats poden bloquejar Web Serial. L'estat d'enviament indica que s'ha fet la petició, no garanteix que ThingSpeak l'hagi acceptada: valida-ho al canal.
 
 Codi inicial: `Microbit-ThingSpeak-Chromebook-PWA.zip` (7/10/2026), amb ajustaments menors per fer-la instal·lable com a PWA i limitar la memòria cau del service worker al propi lloc web.
