@@ -56,16 +56,22 @@
           </label>
           <div id="wakeLockStatus" class="wake-status" aria-live="polite">Comprovant…</div>
         </div>
-        <div class="sidebar-key">
-          <label for="apiKey">Write API Key</label>
-          <input id="apiKey" type="password" autocomplete="off" placeholder="Clau de ThingSpeak">
-          <button id="saveKey">Desa la clau</button>
-        </div>
       </section>
 
       <section class="card sidebar-recent">
         <div class="sidebar-label">Última lectura rebuda</div>
         <div id="lastData" class="muted">Encara no hi ha dades.</div>
+      </section>
+
+      <section class="card sidebar-cloud" aria-label="Enviament opcional a ThingSpeak">
+        <div class="sidebar-label">ThingSpeak · opcional</div>
+        <div id="cloudMode" class="cloud-mode" aria-live="polite">Mode local · enviament desactivat.</div>
+        <div class="sidebar-key">
+          <label for="apiKey">Write API Key</label>
+          <input id="apiKey" type="password" autocomplete="off" placeholder="Clau de ThingSpeak">
+          <button id="saveKey">Desa la clau</button>
+          <button id="disableCloud" disabled>Desactiva l'enviament</button>
+        </div>
       </section>
 
       <section class="card sidebar-sent" aria-label="Últim enviament a ThingSpeak">

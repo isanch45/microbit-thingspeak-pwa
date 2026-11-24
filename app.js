@@ -16,6 +16,8 @@ const lastSentDataEl = $("lastSentData");
 const lastSentTimeEl = $("lastSentTime");
 const lastSentStatusEl = $("lastSentStatus");
 const apiKeyEl = $("apiKey");
+const cloudModeEl = $("cloudMode");
+const disableCloudEl = $("disableCloud");
 
 function log(msg) {
   const stamp = new Date().toLocaleTimeString();
@@ -54,21 +56,41 @@ function describeSerialConnectionError(err) {
   return { title: "Error connectant", detail: message };
 }
 
+function getApiKey() {
+  return localStorage.getItem("thingspeakWriteKey") || "";
+}
+
+function renderCloudMode(message = "") {
+  const active = Boolean(getApiKey());
+  cloudModeEl.dataset.state = active ? "active" : "local";
+  cloudModeEl.textContent = message || (active
+    ? "Enviament al núvol activat."
+    : "Mode local · enviament desactivat.");
+  disableCloudEl.disabled = !active;
+}
+
 function loadApiKey() {
-  const key = localStorage.getItem("thingspeakWriteKey") || "";
-  apiKeyEl.value = key;
-  return key;
+  apiKeyEl.value = getApiKey();
+  renderCloudMode();
 }
 
 function saveApiKey() {
   const key = apiKeyEl.value.trim();
   if (!key) {
-    setStatus("Falta la Write API Key", "Enganxa la clau de ThingSpeak.", "warn");
+    renderCloudMode("Introdueix una Write API Key per activar l'enviament.");
     return false;
   }
   localStorage.setItem("thingspeakWriteKey", key);
+  renderCloudMode();
   log("Write API Key desada en aquest dispositiu.");
   return true;
+}
+
+function disableCloud() {
+  localStorage.removeItem("thingspeakWriteKey");
+  apiKeyEl.value = "";
+  renderCloudMode();
+  log("Enviament a ThingSpeak desactivat.");
 }
 
 function isLikelyMicrobit(p) {
@@ -95,7 +117,7 @@ async function autoConnectGrantedPort() {
     if (!ports.length) {
       setStatus(
         "Preparat",
-        "Primera vegada: desa la clau i prem «Connecta micro:bit».",
+        "Prem «Connecta micro:bit» i selecciona el port USB.",
         ""
       );
       return;
@@ -116,8 +138,6 @@ async function requestAndConnect() {
     setStatus("Web Serial no disponible", "Cal Chrome compatible amb Web Serial i HTTPS.", "err");
     return;
   }
-
-  if (!saveApiKey()) return;
 
   try {
     const selected = await navigator.serial.requestPort();
@@ -264,6 +284,9 @@ async function handleLine(line) {
   window.SensorDashboard?.ingest(line);
   lastDataEl.textContent = "Rebut: " + line;
   log("Rebut: " + line);
+  if (port && keepReading && detailEl.textContent !== "Rebent dades per USB.") {
+    setStatus("✅ Micro:bit connectada", "Rebent dades per USB.", "ok");
+  }
 
   const values = parseLine(line);
   if (!values.length) return;
@@ -273,11 +296,8 @@ async function handleLine(line) {
     return;
   }
 
-  const apiKey = localStorage.getItem("thingspeakWriteKey") || apiKeyEl.value.trim();
-  if (!apiKey) {
-    setStatus("Falta la Write API Key", "Desa la clau abans d'enviar.", "warn");
-    return;
-  }
+  const apiKey = getApiKey();
+  if (!apiKey) return; // Mode local: no hi ha cap petició al núvol.
 
   const params = new URLSearchParams({ api_key: apiKey });
   values.forEach((value, index) => params.set(`field${index + 1}`, value));
@@ -297,21 +317,16 @@ async function handleLine(line) {
     });
 
     lastSendAt = Date.now();
-    setStatus("✅ Enviant a ThingSpeak", line, "ok");
     showLastSubmission(sentFields, attemptedAt, "sent");
     log("Petició enviada a ThingSpeak.");
   } catch (err) {
     showLastSubmission(sentFields, attemptedAt, "error");
-    setStatus("Error enviant a ThingSpeak", String(err), "err");
     log("ThingSpeak: " + err);
   }
 }
 
-$("saveKey").addEventListener("click", () => {
-  if (saveApiKey()) {
-    setStatus("Clau guardada", "Ja pots connectar la micro:bit.", "ok");
-  }
-});
+$("saveKey").addEventListener("click", saveApiKey);
+disableCloudEl.addEventListener("click", disableCloud);
 
 $("connect").addEventListener("click", requestAndConnect);
 $("disconnect").addEventListener("click", () => disconnect(true));
