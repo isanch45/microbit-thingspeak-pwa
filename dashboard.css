@@ -133,3 +133,11 @@ main{max-width:1580px!important;margin:0 auto;padding:22px 24px 40px}
 .sent-status[data-state="error"]{color:#b42318}
 .sent-status[data-state="sent"]{color:#24638b}
 .sent-time:empty,.sent-status:empty{display:none}
+
+/* Enviament al núvol opcional i independent de la connexió USB. */
+.cloud-mode{font-size:.82rem;line-height:1.45;color:#60738b;overflow-wrap:anywhere}
+.cloud-mode[data-state="active"]{color:#087647;font-weight:600}
+.sidebar-cloud .sidebar-key{border-top:0;margin-top:12px;padding-top:0}
+.sidebar-cloud .sidebar-key button{width:100%;margin:6px 0 0}
+.sidebar-cloud #disableCloud{background:#fff;color:#395d83;border-color:#cbd6e2;font-size:.79rem}
+.sidebar-cloud #disableCloud:disabled{opacity:.48;cursor:default}
