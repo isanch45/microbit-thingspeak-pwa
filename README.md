@@ -42,6 +42,10 @@ automàtica durant la recollida. L'estat indica si realment està **Actiu**,
 
 **Nota:** la configuració s’inspira en ThingSpeak però els càlculs es fan localment sobre un historial limitat (9.000 lectures i fins a 30 dies). Per obtenir un registre anual complet, consulta les dades de ThingSpeak. La selecció de dies no pot mostrar informació que no s’hagi desat en aquest navegador.
 
+### Última lectura i últim enviament
+
+El panell lateral separa l'última lectura rebuda per USB de l'última petició a ThingSpeak. Mostra els camps efectivament inclosos (field1…field8), els valors i l'hora local de la petició. Les lectures descartades per l'interval de 15 segons no canvien l'últim enviament. Una petició enviada no equival a una acceptació confirmada: comprova Private View. L'indicador no mostra la clau API.
+
 ### Format de dades
 La receptora envia una línia CSV com `23,157,623`, que es publica en `field1`, `field2` i `field3`. Per a les micro:bits de mostra: temperatura, llum i lectura analògica P0. Es poden enviar fins a 8 camps.
 

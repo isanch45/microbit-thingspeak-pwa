@@ -12,6 +12,9 @@ const statusEl = $("status");
 const detailEl = $("detail");
 const logEl = $("log");
 const lastDataEl = $("lastData");
+const lastSentDataEl = $("lastSentData");
+const lastSentTimeEl = $("lastSentTime");
+const lastSentStatusEl = $("lastSentStatus");
 const apiKeyEl = $("apiKey");
 
 function log(msg) {
@@ -237,6 +240,25 @@ function parseLine(line) {
   return parts.slice(0, 8);
 }
 
+function showLastSubmission(fields, timestamp, state) {
+  if (!lastSentDataEl || !lastSentTimeEl || !lastSentStatusEl) return;
+  lastSentDataEl.replaceChildren();
+  fields.forEach(([name, value]) => {
+    const row = document.createElement("div");
+    const label = document.createElement("span");
+    const val = document.createElement("strong");
+    label.textContent = name;
+    val.textContent = value;
+    row.append(label, val);
+    lastSentDataEl.append(row);
+  });
+  lastSentTimeEl.textContent = new Date(timestamp).toLocaleString("ca-ES");
+  lastSentStatusEl.dataset.state = state;
+  lastSentStatusEl.textContent = state === "sent"
+    ? "Petició enviada · acceptació no verificada"
+    : state === "error" ? "Error d'enviament" : "Enviant…";
+}
+
 async function handleLine(line) {
   // Visualitza totes les lectures rebudes, incloses les que no s'envien pel límit de 15 s.
   window.SensorDashboard?.ingest(line);
@@ -262,6 +284,9 @@ async function handleLine(line) {
 
   const url = `https://api.thingspeak.com/update.json?${params.toString()}`;
 
+  const sentFields = Array.from(params.entries()).filter(([name]) => /^field[1-8]$/.test(name));
+  const attemptedAt = Date.now();
+  showLastSubmission(sentFields, attemptedAt, "pending");
   try {
     // ThingSpeak accepta actualització per GET.
     // no-cors permet fer la petició des d'una PWA encara que la resposta sigui opaca.
@@ -273,9 +298,10 @@ async function handleLine(line) {
 
     lastSendAt = Date.now();
     setStatus("✅ Enviant a ThingSpeak", line, "ok");
-    lastDataEl.textContent = "Enviat: " + line;
+    showLastSubmission(sentFields, attemptedAt, "sent");
     log("Petició enviada a ThingSpeak.");
   } catch (err) {
+    showLastSubmission(sentFields, attemptedAt, "error");
     setStatus("Error enviant a ThingSpeak", String(err), "err");
     log("ThingSpeak: " + err);
   }

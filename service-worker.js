@@ -1,4 +1,4 @@
-const CACHE = "microbit-thingspeak-v8";
+const CACHE = "microbit-thingspeak-v9";
 const ASSETS = ["./", "./index.html", "./app.js", "./dashboard.js", "./chart-options.js", "./chart-options-dialog.js", "./wake-lock.js", "./dashboard.css", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", (event) => {
